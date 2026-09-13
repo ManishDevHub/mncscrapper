@@ -122,4 +122,5 @@ return res.status(200).json({
         })
     }
  }
+ console.log(" blog controller loaded successfully")
  
