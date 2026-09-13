@@ -115,10 +115,5 @@ return res.status(200).json({
     data: blog
 })
 
-    } catch ( error) {
-        return res.status(500).json({
-            success: false,
-            message: " Internal server error "
-        })
     }
  }
