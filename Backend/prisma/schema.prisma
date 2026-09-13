@@ -20,3 +20,19 @@ model User {
   email       String    @unique
   password    String
 }
+
+model Blog {
+  
+  id       Int       @id @default(autoincrement())
+  title     String
+  slug      String    @unique
+  content   String
+  excerpt    String?
+  thumbnail   String?
+  published   Boolean   @default(false)
+
+  createAt    DateTime   @default(now())
+  updateAt     DateTime   @updatedAt
+
+
+}
