@@ -185,3 +185,51 @@ return res.status(200).json({
     }
  }
  
+
+ const deleteBlog = async ( req: Request , res : Response , next: NextFunction) =>{
+
+    try{
+        const { id} = req.params
+        const blogId = Number(id)
+
+        if(Number.isNaN(blogId)){
+
+            return res.status(400).json({
+                success: false,
+                message: " Invalid blog id";
+
+            })
+        }
+
+        const existingBlog = await prisma.blog.findUnique({
+
+            where:{
+                id: blogId
+            }
+        })
+
+        if(!existingBlog){
+            return res.status(404).json({
+                success: false,
+                message: " Blog not found"
+            })
+        }
+        await prisma.blog.delete({
+            where:{
+                id: blogId
+            }
+        })
+
+        return res.status(200).json({
+            success: true,
+            message: " Blog deleted successfully";
+        })
+
+    } catch( error ) {
+        return res.status(500).json({
+
+        success: false,
+        message: " Internal server error "
+        })
+    }
+ }
