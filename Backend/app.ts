@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import router from "./routes/auth.route"
+import Blogrouter from "./routes/auth.route";
 
 
 const app = express();
@@ -19,6 +20,7 @@ app.get("/", ( req:express.Request , res:express.Response ) => {
 })
 
 app.use("/api/auth" , router);
+app.use("/api/blog" , Blogrouter)
 app.listen(3000 , () => {
     console.log( " server listening on port 3000")
 })

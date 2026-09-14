@@ -2,9 +2,9 @@ import Router from "express"
 import { signup } from "../controller/authController"
 import { login } from "../controller/authController"
 
-const router = Router();
+const Blogrouter = Router();
 
-router.post("/signup" , signup)
-router.post("/login" , login)
+Blogrouter.post("/signup" , signup)
+Blogrouter.post("/login" , login)
 
-export default router
+export default Blogrouter

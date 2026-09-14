@@ -186,7 +186,7 @@ return res.status(200).json({
  }
  
 
- const deleteBlog = async ( req: Request , res : Response , next: NextFunction) =>{
+  export const deleteBlog = async ( req: Request , res : Response , next: NextFunction) =>{
 
     try{
         const { id} = req.params
