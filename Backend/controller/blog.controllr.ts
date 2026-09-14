@@ -123,4 +123,65 @@ return res.status(200).json({
     }
  }
 
+ export const updateBlog = async ( req: Request , res: Response , next: NextFunction) =>{
+
+
+    try{
+        const { id }  = req.params
+        const blogId = Number( id );
+
+        if( Number.isNaN(blogId)){
+
+            return res.status(400).json({
+                success: false,
+                message: " Invalid blog id"
+            })
+
+        }
+        const { title , content , excerpt , thumnail , published } = req.body;
+
+        const existingBlog = await prisma.blog.findUnique({
+            where:{
+                id: blogId
+            }
+        })
+
+        if( !existingBlog){
+
+            return res.status(404).json({
+                success: false,
+                message: " Blog not found"
+
+            })
+        }
+
+        const updatedBlog = await prisma.blog.update({
+            where:{
+                id: blogId
+            },
+            data: {
+                title: title ?? existingBlog.title,
+                content: content ?? existingBlog.content,
+                excerpt: excerpt ?? existingBlog.excerpt,
+                thumnail: thumnail ?? existingBlog.thumnail,
+                published: published ?? existingBlog.published,
+
+            }
+        })
+
+        return res.status(200).json({
+            success: true,
+            message:"blog updated successfully",
+            data: updatedBlog
+        })
+
+
+    } catch( error){
+
+        return res.status(500).json({ 
+            success: false,
+            message: " Internal server error"
+        })
+    }
+ }
  
