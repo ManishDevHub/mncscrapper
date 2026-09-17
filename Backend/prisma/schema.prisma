@@ -36,3 +36,22 @@ model Blog {
 
 
 }
+
+model Job {
+  id        Int             @id @default(autoincrement())
+  title     String
+  Company    String 
+  location   String
+  jobType    String
+  exprience   String
+  description String
+  skills      String[]
+  salary      String
+  applyLink    String
+  isActive     Boolean             @default(true)
+
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  
+
+}
