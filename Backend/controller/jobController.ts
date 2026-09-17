@@ -80,3 +80,48 @@ export const getAllJobs = async ( req: Request , res: Response , next: NextFunct
         })
     }
 }
+
+export const getJobById = async ( req: Request , res: Response , next: NextFunction ) => {
+
+    try {
+
+        const id = req.params
+        const jobId = Number(id)
+
+        if(Number.isNaN(jobId)){
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid job Id'
+            })
+        }
+
+        const job = await prisma.job.findFirst({
+            where:{
+                id: jobId,
+                isActive: true
+            }
+        })
+
+        if(!job){
+            return res.status(404).json({
+                success: false,
+                message: 'Job not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "job fetched successfully",
+            data: job
+            
+        })
+
+
+    } catch ( error) {
+        return res.status(500).json({
+            success: false , 
+            message: ' Intrnal server error'
+        })
+    }
+}
