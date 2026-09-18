@@ -71,7 +71,33 @@ model Compnay {
 
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt
-  
 
+
+}
+
+model Product {
+
+  id        Int     @id  @default(autoincrement())
+  name      String
+  companyId Int
+
+  company   Compnay     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime      @default(now())
+  updetedAe   DateTime        @updatedAt
+
+}
+
+model InterviewRound {
+  id       Int        @default(autoincrement())
+  roundNumber Int
+  title          String
+  description    String
+  companyId      Int
+  company      Compnay    @relation(fields: [companyId], references: [id] , onDelete: Cascade)
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  @@unique([companyId, roundNumber])
 }
 
