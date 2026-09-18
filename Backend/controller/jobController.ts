@@ -186,7 +186,7 @@ if(!exitstingJob){
     } catch (error) {
         return res.status(500).json({
             success:false,
-            message: 'Internal server errors'
+            message: 'Internal server error'
         })
     }
 }
@@ -230,7 +230,7 @@ export const deleteJob = async ( req: Request ,res: Response, next: NextFunction
   } catch (error) {
     return res.status(500).json({
         success:false,
-        message: 'Internal server errors'
+        message: 'Internal server error'
     })
   }
 };

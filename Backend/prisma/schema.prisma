@@ -55,3 +55,23 @@ model Job {
   
 
 }
+model Compnay {
+  id               Int            @id @default(autoincrement())
+  name             String
+  slug              String         @unique
+  establishedYear   Int?
+  type              String?
+  industry          String?
+  discription       String?
+  website           String?
+  logo              String?
+
+  product           Product[]
+  interviewRounds  InterviewRound[]
+
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  
+
+}
+
