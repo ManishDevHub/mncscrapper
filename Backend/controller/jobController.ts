@@ -186,7 +186,7 @@ if(!exitstingJob){
     } catch (error) {
         return res.status(500).json({
             success:false,
-            message: 'Internal server error'
+            message: 'Internal server errors'
         })
     }
 }
@@ -200,7 +200,7 @@ export const deleteJob = async ( req: Request ,res: Response, next: NextFunction
     if (Number.isNaN(jobId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid job ID",
+        message: "Invalid job  ID",
       });
     }
 
@@ -230,7 +230,7 @@ export const deleteJob = async ( req: Request ,res: Response, next: NextFunction
   } catch (error) {
     return res.status(500).json({
         success:false,
-        message: 'Internal server error'
+        message: 'Internal server errors'
     })
   }
 };
