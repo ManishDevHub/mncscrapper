@@ -134,4 +134,61 @@ export const getCompanyById = async (
   } catch (error) {
     next(error);
   }
-};
+}
+
+
+export const updateCompany = async ( req: Request , res: Response , next: NextFunction ) => {
+
+    try{
+
+          const {id} = req.params
+    const companyId = Number(id)
+
+    if( Number.isNaN(companyId)){
+        return res.status(400).json({
+            success: false,
+            message: "Invalid company Id "
+        })
+    }
+const existingCompany = await prisma.company.findUnique({
+    where:{
+        id: companyId
+    }
+})
+
+if(!existingCompany){
+    return res.status(404).json({
+        success: false,
+        message: " Company not found"
+    })
+}
+
+const { name ,  establishedYear, type,industry, description, website, logo,} = req.body;
+
+const updatedCompany = await prisma.company.update({
+
+    where: {
+        id : companyId
+    },
+    data:{
+        name,
+        establishedYear,
+        type,
+        industry,
+        description,
+        website,
+        logo
+    }
+})
+
+return res.status(200).json({
+    success: true ,
+    message: "Company updated successfully"
+})
+
+    } catch(error){
+        next(error)
+    }
+  
+
+}
