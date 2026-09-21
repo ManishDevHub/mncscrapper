@@ -83,3 +83,55 @@ export const getAllCompanies = async ( req: Request , res: Response , next: Next
         })
     }
 }
+
+export const getCompanyById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+
+    const companyId = Number(id);
+
+    if (Number.isNaN(companyId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid company ID",
+      });
+    }
+
+    const company = await prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+      include: {
+        products: {
+          orderBy: {
+            name: "asc",
+          },
+        },
+
+        interviewRounds: {
+          orderBy: {
+            roundNumber: "asc",
+          },
+        },
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: company,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
