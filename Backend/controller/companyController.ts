@@ -232,6 +232,64 @@ export const deleteCompany = async ( req:Request , res:Response) => {
         success: true,
         message: "company deleted successfully"
     })
-    
 
+
+}
+
+export const createProduct = async (req:Request , res: Response) =>{
+
+    try{
+
+        const { id } = req.params
+        const companyId = Number(id)
+
+        if(Number.isNaN(companyId)){
+            return res.status(400).json({
+                success:false,
+                message: "Invalid company Id",
+            })
+        }
+
+        const { name } = req.body
+         if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: "Product name is required",
+      });
+    }
+
+    const company = await prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name,
+        companyId,
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      data: product,
+    });
+
+
+    } catch (error){
+
+        return res.status(500).json({
+            success: false,
+            message: "intenal server error" 
+        })
+    }
 }
