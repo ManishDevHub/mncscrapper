@@ -192,3 +192,46 @@ return res.status(200).json({
   
 
 }
+
+
+export const deleteCompany = async ( req:Request , res:Response) => {
+    const id = req.params
+    const companyId = Number(id);
+
+    if(Number.isNaN(companyId)){
+        return res.status(400).json({
+
+            success: false,
+            message: "Invalid company Id"
+        })
+
+
+
+    }
+
+    const company = await prisma.company.findUnique({
+        where: {
+            id: companyId,
+        }
+    })
+
+    if(!company){
+        return res.status(404).json({
+            success: false,
+            message: "company not found"
+        })
+    }
+
+    await prisma.company.delete({
+        where:{
+            id: companyId
+        }
+    })
+
+    return res.status(200).json({
+        success: true,
+        message: "company deleted successfully"
+    })
+    
+
+}
