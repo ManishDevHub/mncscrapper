@@ -357,3 +357,56 @@ export const updateProduct = async (req:Request , res:Response) => {
         })
     }
 }
+
+
+export const deleteProduct = async( req:Request , res: Response) => {
+
+    try{
+
+        const { id , productId} = req.params;
+        const companyId = Number(productId)
+        const companyIdProduct  = Number(id)
+
+        if(Number.isNaN(companyId) || Number.isNaN(companyIdProduct)){
+            return res.status(400).json({
+                success: false,
+                message: "product or company id required"
+            })
+        }
+
+        const product = await prisma.product.findFirst({
+            where:{
+                id:companyIdProduct
+            }
+        })
+
+        if(!product){
+            return res.status(404).json({
+                success: false,
+                message: " Product not found"
+            })
+        }
+
+        const deletedProduct = await prisma.product.delete({
+            Where:{
+                id: companyIdProduct,
+                companyId
+            }
+        })
+
+        return res.status(200).json({
+
+            success: false,
+            message: " Product deleted successfully"
+
+        })
+
+
+    } catch( error) [
+
+        return res.status(500).json({
+            success: false,
+             message: " Internal server error"
+        })
+    ]
+}
