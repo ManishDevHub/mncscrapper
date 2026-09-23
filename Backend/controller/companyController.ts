@@ -402,11 +402,11 @@ export const deleteProduct = async( req:Request , res: Response) => {
         })
 
 
-    } catch( error) [
+    } catch( error) {
 
         return res.status(500).json({
             success: false,
              message: " Internal server error"
         })
-    ]
+    }
 }
