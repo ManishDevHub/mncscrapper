@@ -293,3 +293,67 @@ export const createProduct = async (req:Request , res: Response) =>{
         })
     }
 }
+
+
+export const updateProduct = async (req:Request , res:Response) => {
+
+    try{
+
+        const { id , productId } = req.params;
+        const companyId = Number(id)
+        const productIdNumber = Number(companyId)
+
+        if(Number.isNaN(companyId) || Number.isNaN(productIdNumber)){
+            return res.status(400).json({
+
+                success: false ,
+                message: " Product id or company id not found "
+            })
+        }
+
+        const { name } = req.body
+
+        if(!name){
+            return res.status(404).json({
+
+                success: false,
+                message:"Product name required"
+            })
+        }
+
+        const product = await prisma.product.findFirst({
+            where:{
+                id: productIdNumber,
+                companyId
+            }
+        })
+
+        if( !product){
+            return res.status(404).json({
+
+                success: false,
+                message: " Product not found",
+            })
+        }
+
+        const updatedProduct = await prisma.product.update({
+            where:{
+                id: productIdNumber
+            },
+            data:{
+                name
+            }
+        })
+
+        return res.status(200).json({
+            success:true,
+            message:"Product updated successfully",
+        })
+
+    } catch(error){
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
