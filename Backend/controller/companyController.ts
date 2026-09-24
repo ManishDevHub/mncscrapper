@@ -505,18 +505,26 @@ const updateRound = async( req: Request , res: Response ) => {
             })
         }
 
-        const existingRound = await prisma.interviewRound.findUniue({
+        const existingRound = await prisma.interviewRound.findFirst({
             where:{
-                id: companyId
+                id: roundIdNumber,
+                companyId
             }
         })
+
+        if(!existingRound){
+            return res.status(404).json({
+                success: false,
+                message: "Interview round not found"
+            })
+        }
 
        const { roundNumber , title , discription } = req.body;
 
        const update = await prisma.interviewRound.update({
 
         where:{
-            id: companyId
+            id: roundIdNumber
         },
         data:{
             title,
@@ -537,6 +545,62 @@ const updateRound = async( req: Request , res: Response ) => {
         return res.status(500).json({
             success: false , 
              message: " Internal server error" ,
+        })
+    }
+}
+
+
+const deleteRound = async(req: Request , res: Response )=>{
+
+    try{ 
+
+        const { id , roundId} = req.body
+
+        const comapanyId = Number(id)
+        const roundIdNumber = Number(roundId);
+
+        if( Number.isNaN(comapanyId) || Number.isNaN(roundIdNumber)){
+            return res.status(409).json({
+
+                success: false,
+                message: " comapny or roundID not found"
+            })
+        }
+
+        const existing = await prisma.interviewRound.findFirst({
+            where:{
+                id: roundIdNumber,
+                comapanyId
+            }
+        })
+
+        if(!existing){
+            return res.status(404).json({
+
+                suceess: false,
+                message: " Interview round not found"
+            })
+        }
+
+        const dalete = await prisma.interviewRound.delete({
+
+            where:{
+                id: roundIdNumber
+            }
+        })
+
+        return res.status(200).json({
+
+            success: false,
+         message: "round deleted successfully"
+        })
+
+
+    } catch( error) {
+
+        return res.status(500).json({
+            success: false,
+            message: " Internal server error"
         })
     }
 }
