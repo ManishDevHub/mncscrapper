@@ -1,6 +1,7 @@
 
 import { Request , Response , NextFunction } from 'express'
 import prisma from '../db/prisma'
+import { addAbortListener } from 'events';
 
 
 
@@ -483,6 +484,59 @@ const createInterViewRou = async ( req: Request , res:Response) => {
             success: false,
             message: " INternal server error"
             
+        })
+    }
+}
+
+const updateRound = async( req: Request , res: Response ) => {
+
+    try{
+
+        const { id , roundId} = req.body;
+        const companyId = Number(id)
+        const roundIdNumber = Number(roundId)
+
+
+        if(Number.isNaN(companyId) || Number.isNaN(roundIdNumber)) {
+
+            return res.status(400).json({
+                success: false,
+                message: " CompanyId or roundIdNumber not found"
+            })
+        }
+
+        const existingRound = await prisma.interviewRound.findUniue({
+            where:{
+                id: companyId
+            }
+        })
+
+       const { roundNumber , title , discription } = req.body;
+
+       const update = await prisma.interviewRound.update({
+
+        where:{
+            id: companyId
+        },
+        data:{
+            title,
+            roundNumber,
+            discription
+        }
+       })
+
+       return res.status(201).json({
+
+        success: true,
+        message: "Interview round updated successfully",
+        data:update
+       })
+
+
+    } catch( error){
+        return res.status(500).json({
+            success: false , 
+             message: " Internal server error" ,
         })
     }
 }
