@@ -411,3 +411,78 @@ export const deleteProduct = async( req:Request , res: Response) => {
         })
     }
 }
+
+
+const createInterViewRou = async ( req: Request , res:Response) => {
+
+
+    try{
+
+        const id = req.params
+        const companyId = Number(id)
+
+        if(Number.isNaN(companyId)){
+            return res.status(400).json({
+                success: false,
+                message: " Company Id is required"
+            })
+        }
+
+        const { roundNumber , title , discription } = req.body;
+
+
+        const company = await prisma.company.findUnique({
+
+            where:{
+                id: companyId
+            }
+        })
+
+        if(!company){
+            return res.status(404).json({
+
+                success: false, 
+                message: " company  not found"
+            })
+        }
+
+        const exitstingRound = await prisma.interviewRound.FindFirst({
+            where:{
+                id: companyId,
+                roundNumber,
+                
+            }
+        })
+
+        if(exitstingRound){
+            return res.status(409).json({
+                success: false,
+                message: " Round all ready exist"
+            })
+        }
+
+        const round = await prisma.interviewRound.create({
+            data:{
+
+                title,
+                discription,
+                roundNumber,
+                companyId
+            }
+        })
+        
+        return res.status(201).json({
+            sucess: true,
+            message: " round created successfully",
+            data:round
+        })
+
+    } catch ( error) {
+
+        return res.status(500).json({
+            success: false,
+            message: " INternal server error"
+            
+        })
+    }
+}
