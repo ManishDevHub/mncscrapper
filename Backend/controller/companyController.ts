@@ -302,7 +302,7 @@ export const updateProduct = async (req:Request , res:Response) => {
 
         const { id , productId } = req.params;
         const companyId = Number(id)
-        const productIdNumber = Number(companyId)
+        const productIdNumber = Number(productId)
 
         if(Number.isNaN(companyId) || Number.isNaN(productIdNumber)){
             return res.status(400).json({
@@ -360,7 +360,7 @@ export const updateProduct = async (req:Request , res:Response) => {
 }
 
 
-export const deleteProduct = async( req:Request , res: Response) => {
+export const deleteProduct = async( req:Request , res: Response , next:NextFunction) => {
 
     try{
 
@@ -414,7 +414,7 @@ export const deleteProduct = async( req:Request , res: Response) => {
 }
 
 
-const createInterViewRou = async ( req: Request , res:Response) => {
+ export const createInterViewRou = async ( req: Request , res:Response) => {
 
 
     try{
@@ -488,7 +488,8 @@ const createInterViewRou = async ( req: Request , res:Response) => {
     }
 }
 
-const updateRound = async( req: Request , res: Response ) => {
+
+export const updateRound = async( req: Request , res: Response ) => {
 
     try{
 
@@ -550,7 +551,7 @@ const updateRound = async( req: Request , res: Response ) => {
 }
 
 
-const deleteRound = async(req: Request , res: Response )=>{
+ export const deleteRound = async(req: Request , res: Response )=>{
 
     try{ 
 
