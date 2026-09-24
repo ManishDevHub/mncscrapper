@@ -10,14 +10,10 @@ router.get("/:id" , authMiddleware , getCompanyById)
 router.delete("/:id", authMiddleware , deleteCompany)
 
 
-router.post("/create", authMiddleware , createProduct)
-router.post("/product", authMiddleware, updateProduct)
-router.delete("/delete" , authMiddleware, deleteProduct)
 
 
-router.post("/create" , authMiddleware , createInterViewRou);
-router.post("/update" , authMiddleware , updateRound)
-router.delete("/delete", authMiddleware, deleteRound);
+
+
 
 
 export default router;
