@@ -429,7 +429,7 @@ export const deleteProduct = async( req:Request , res: Response , next:NextFunct
             })
         }
 
-        const { roundNumber , title , discription } = req.body;
+        const { roundNumber , title , description } = req.body;
 
 
         const company = await prisma.company.findUnique({

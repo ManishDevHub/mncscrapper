@@ -11,7 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url      = env("DATABASE_URL")
+   url      = env("DATABASE_URL")
 }
 
 model User {
@@ -55,7 +55,7 @@ model Job {
   
 
 }
-model Compnay {
+model Company {
   id               Int            @id @default(autoincrement())
   name             String
   slug              String         @unique
@@ -81,7 +81,7 @@ model Product {
   name      String
   companyId Int
 
-  company   Compnay     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime      @default(now())
   updetedAe   DateTime        @updatedAt
@@ -94,7 +94,7 @@ model InterviewRound {
   title          String
   description    String
   companyId      Int
-  company      Compnay    @relation(fields: [companyId], references: [id] , onDelete: Cascade)
+  company      Company    @relation(fields: [companyId], references: [id] , onDelete: Cascade)
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
