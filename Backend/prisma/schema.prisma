@@ -44,7 +44,7 @@ model Job {
   location   String
   jobType    String
   exprience   String
-  description String
+  description String?
   skills      String[]
   salary      String
   applyLink    String
@@ -62,7 +62,7 @@ model Company {
   establishedYear   Int?
   type              String?
   industry          String?
-  discription       String?
+  description       String?
   website           String?
   logo              String?
 
@@ -92,7 +92,7 @@ model InterviewRound {
   id       Int        @default(autoincrement())
   roundNumber Int
   title          String
-  description    String
+  description    String?
   companyId      Int
   company      Company    @relation(fields: [companyId], references: [id] , onDelete: Cascade)
 

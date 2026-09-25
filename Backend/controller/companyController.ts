@@ -1,7 +1,7 @@
 
 import { Request , Response , NextFunction } from 'express'
 import prisma from '../db/prisma'
-import { addAbortListener } from 'events';
+
 
 
 
@@ -389,7 +389,7 @@ export const deleteProduct = async( req:Request , res: Response , next:NextFunct
         }
 
         const deletedProduct = await prisma.product.delete({
-            Where:{
+            where:{
                 id: companyIdProduct,
                 companyId
             }
@@ -447,7 +447,7 @@ export const deleteProduct = async( req:Request , res: Response , next:NextFunct
             })
         }
 
-        const exitstingRound = await prisma.interviewRound.FindFirst({
+        const exitstingRound = await prisma.interviewRound.findFirst({
             where:{
                 id: companyId,
                 roundNumber,
@@ -466,7 +466,7 @@ export const deleteProduct = async( req:Request , res: Response , next:NextFunct
             data:{
 
                 title,
-                discription,
+               description,
                 roundNumber,
                 companyId
             }
@@ -530,7 +530,7 @@ export const updateRound = async( req: Request , res: Response ) => {
         data:{
             title,
             roundNumber,
-            discription
+            description
         }
        })
 
