@@ -520,12 +520,13 @@ export const updateRound = async( req: Request , res: Response ) => {
             })
         }
 
-       const { roundNumber , title , discription } = req.body;
+       const { roundNumber , title ,  description } = req.body;
 
        const update = await prisma.interviewRound.update({
 
         where:{
-            id: roundIdNumber
+
+            id: roundIdNumber,
         },
         data:{
             title,
@@ -586,7 +587,8 @@ export const updateRound = async( req: Request , res: Response ) => {
         const dalete = await prisma.interviewRound.delete({
 
             where:{
-                id: roundIdNumber
+                id: roundIdNumber ,
+                
             }
         })
 
