@@ -232,7 +232,7 @@ const Login = () => {
 
       </div>
     </main>
-  );
-};
+  )
+}
 
 export default Login;
