@@ -62,7 +62,7 @@ return res.status(201).json({
 
         const blogs = await prisma.blog.findMany({
             orderBy:{
-                createdAt: "desc"
+                createAt: "desc"
             }
         })
 
@@ -196,7 +196,7 @@ return res.status(200).json({
 
             return res.status(400).json({
                 success: false,
-                message: " Invalid blog id";
+                message: " Invalid blog id"
 
             })
         }
@@ -222,7 +222,7 @@ return res.status(200).json({
 
         return res.status(200).json({
             success: true,
-            message: " Blog deleted successfully";
+            message: " Blog deleted successfully"
         })
 
     } catch( error ) {

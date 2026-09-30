@@ -8,7 +8,9 @@ export const signup = async (req: Request, res: Response) => {
     try {
         const { username, email, password } = req.body;
 
-        const existingUser = await prisma.user.findOne({ email });
+        const existingUser = await prisma.user.findUnique({ 
+          where:  email
+         });
         if (existingUser) {    
             return res.status(400).json({ message: 'User already exists' });
         }
