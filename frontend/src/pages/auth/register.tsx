@@ -34,7 +34,7 @@ const Register = () => {
       confirmPassword,
     });
 
-    // Backend register API will be connected here
+ 
   };
 
   return (
@@ -164,7 +164,7 @@ const Register = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
 
-              {/* ================= NAME ================= */}
+           
 
               <div>
 
