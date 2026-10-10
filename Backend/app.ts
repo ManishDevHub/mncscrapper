@@ -18,16 +18,16 @@ app.use(express.json());
 app.get("/", ( req:express.Request , res:express.Response ) => {
 
     res.json({
-        message: "hello world"
+        message: "hello world route working fine"
     })
 })
 
 app.use("/api/auth" , router);
-app.use("/api/blog" , Blogrouter)
-app.use("/api/job", JobRouter)
-app.use("/company", companyRouter)
-app.use("company/product" ,productRouter )
-app.use("company/round" , roundRouter)
+app.use("/api/blog" , Blogrouter);
+app.use("/api/job", JobRouter);
+app.use("/company", companyRouter);
+app.use("company/product" ,productRouter );
+app.use("company/round" , roundRouter);
 app.listen(3000 , () => {
-    console.log( " server listening on port 3000")
+    console.log( " server listening on port 3000 running ");
 })
