@@ -2,6 +2,6 @@
 
 const company = () => {
   return (  
-    <div>company page </div>
+    <div>company page this is building ...... </div>
     )
 }
