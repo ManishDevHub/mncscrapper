@@ -17,7 +17,7 @@ import { Modal } from "../components/Modal";
 export const Jobs: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,19 +159,15 @@ export const Jobs: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              if (!isAuthenticated) {
-                navigate("/login");
-              } else {
-                setIsPostModalOpen(true);
-              }
-            }}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-md shadow-blue-500/25 transition-all self-start md:self-auto cursor-pointer"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Post a Job Opening
-          </button>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-md shadow-blue-500/25 transition-all self-start md:self-auto cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Manage Jobs (Admin)
+            </Link>
+          )}
         </div>
 
         {/* Search & Filter Controls */}

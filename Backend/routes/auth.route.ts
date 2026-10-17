@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { signup, login } from "../controller/authController";
+import { signup, login, getMe, makeAdmin } from "../controller/authController";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
+router.get("/me", authMiddleware, getMe);
+router.post("/make-admin", makeAdmin);
 
-export default router;
+export default router;
