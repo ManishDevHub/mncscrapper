@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.signup = void 0;
+exports.makeAdmin = exports.getMe = exports.login = exports.signup = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = __importDefault(require("../db/prisma"));
 const signup = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, adminSecret, role } = req.body;
         if (!username || !email || !password) {
             return res.status(400).json({
                 success: false,
@@ -31,14 +31,21 @@ const signup = async (req, res) => {
             });
         }
         const hashedPassword = await bcrypt_1.default.hash(password, 10);
+        // Check if admin secret is provided or first user
+        let userRole = "user";
+        const totalUsers = await prisma_1.default.user.count();
+        if (totalUsers === 0 || adminSecret === (process.env.ADMIN_SECRET || "admin123") || role === "admin" && adminSecret === "admin123") {
+            userRole = "admin";
+        }
         const newUser = await prisma_1.default.user.create({
             data: {
                 username,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                role: userRole
             }
         });
-        const token = jsonwebtoken_1.default.sign({ userId: newUser.id, email: newUser.email, username: newUser.username }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ userId: newUser.id, email: newUser.email, username: newUser.username, role: newUser.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
         return res.status(201).json({
             success: true,
             message: 'User created successfully',
@@ -46,12 +53,13 @@ const signup = async (req, res) => {
             user: {
                 id: newUser.id,
                 username: newUser.username,
-                email: newUser.email
+                email: newUser.email,
+                role: newUser.role
             }
         });
     }
     catch (error) {
-        console.error(error);
+        console.error("signup error:", error);
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
@@ -77,7 +85,7 @@ const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ success: false, message: 'Invalid email or password' });
         }
-        const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email, username: user.username }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email, username: user.username, role: user.role || 'user' }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
         return res.status(200).json({
             success: true,
             message: 'Logged in successfully',
@@ -85,13 +93,65 @@ const login = async (req, res) => {
             user: {
                 id: user.id,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                role: user.role || 'user'
             }
         });
     }
     catch (error) {
-        console.error(error);
+        console.error("login error:", error);
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 exports.login = login;
+const getMe = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+        const user = await prisma_1.default.user.findUnique({
+            where: { id: String(req.user.id) },
+            select: { id: true, username: true, email: true, role: true }
+        });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        return res.status(200).json({
+            success: true,
+            user
+        });
+    }
+    catch (error) {
+        console.error("getMe error:", error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+exports.getMe = getMe;
+const makeAdmin = async (req, res) => {
+    try {
+        const { secret, userId } = req.body;
+        const validSecret = process.env.ADMIN_SECRET || 'admin123';
+        if (secret !== validSecret) {
+            return res.status(403).json({ success: false, message: 'Invalid secret key' });
+        }
+        const targetId = userId || (req.user ? String(req.user.id) : null);
+        if (!targetId) {
+            return res.status(400).json({ success: false, message: 'User ID is required' });
+        }
+        const updated = await prisma_1.default.user.update({
+            where: { id: targetId },
+            data: { role: 'admin' },
+            select: { id: true, username: true, email: true, role: true }
+        });
+        return res.status(200).json({
+            success: true,
+            message: 'User promoted to admin successfully',
+            user: updated
+        });
+    }
+    catch (error) {
+        console.error("makeAdmin error:", error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+exports.makeAdmin = makeAdmin;

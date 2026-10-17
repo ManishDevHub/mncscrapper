@@ -53,8 +53,15 @@ const Login = () => {
         <div className="hidden lg:block">
           <div className="max-w-xl">
             {/* Logo */}
-            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500">
-              <BriefcaseBusiness className="h-7 w-7 text-white" />
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl p-1 bg-gradient-to-tr from-blue-600/30 to-indigo-600/30 border border-blue-500/40 shadow-lg shadow-blue-500/25 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="CareerHub Logo"
+                className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(59,130,246,0.6)]"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images (1).png";
+                }}
+              />
             </div>
 
             <p className="mb-4 text-sm font-bold tracking-widest text-blue-600 dark:text-blue-400">

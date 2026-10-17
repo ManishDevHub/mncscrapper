@@ -6,7 +6,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 
 export const signup = async (req: Request, res: Response) => {
     try {
-        const { username, email, password, adminSecret, role } = req.body;
+        const { username, email, password } = req.body;
 
         if (!username || !email || !password) {
             return res.status(400).json({
@@ -15,11 +15,13 @@ export const signup = async (req: Request, res: Response) => {
             });
         }
 
+        const normalizedEmail = email.toLowerCase().trim();
+
         const existingUser = await prisma.user.findFirst({ 
             where: {
                 OR: [
-                    { email },
-                    { username }
+                    { email: normalizedEmail },
+                    { username: username.trim() }
                 ]
             }
         });
@@ -27,23 +29,21 @@ export const signup = async (req: Request, res: Response) => {
         if (existingUser) {    
             return res.status(400).json({
                 success: false,
-                message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
+                message: existingUser.email === normalizedEmail ? 'Email already registered' : 'Username already taken'
             });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Check if admin secret is provided or first user
-        let userRole = "user";
-        const totalUsers = await prisma.user.count();
-        if (totalUsers === 0 || adminSecret === (process.env.ADMIN_SECRET || "admin123") || role === "admin" && adminSecret === "admin123") {
-            userRole = "admin";
-        }
+        // Strict security: all signups are strictly regular users.
+        // Only the designated admin email receives admin role.
+        const adminEmail = (process.env.ADMIN_EMAIL || 'ramuk13476@gmail.com').toLowerCase().trim();
+        const userRole = normalizedEmail === adminEmail ? "admin" : "user";
 
         const newUser = await prisma.user.create({
             data: {
-                username,
-                email,
+                username: username.trim(),
+                email: normalizedEmail,
                 password: hashedPassword,
                 role: userRole
             }
@@ -51,7 +51,7 @@ export const signup = async (req: Request, res: Response) => {
 
         const token = jwt.sign(
             { userId: newUser.id, email: newUser.email, username: newUser.username, role: newUser.role },
-            process.env.JWT_SECRET || 'secret',
+            process.env.JWT_SECRET || 'supersecret_careerhub_jwt_key_2026',
             { expiresIn: '7d' }
         );
 
@@ -84,9 +84,11 @@ export const login = async (req: Request, res: Response) => {
             });
         }
 
+        const normalizedEmail = email.toLowerCase().trim();
+
         const user = await prisma.user.findUnique({
             where: {
-                email,
+                email: normalizedEmail,
             },
         });
 
@@ -101,7 +103,7 @@ export const login = async (req: Request, res: Response) => {
 
         const token = jwt.sign(
             { userId: user.id, email: user.email, username: user.username, role: user.role || 'user' },
-            process.env.JWT_SECRET || 'secret',
+            process.env.JWT_SECRET || 'supersecret_careerhub_jwt_key_2026',
             { expiresIn: '7d' }
         );
 
@@ -151,10 +153,10 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 export const makeAdmin = async (req: AuthRequest, res: Response) => {
     try {
         const { secret, userId } = req.body;
-        const validSecret = process.env.ADMIN_SECRET || 'admin123';
+        const validSecret = process.env.ADMIN_SECRET || 'rudra111';
 
         if (secret !== validSecret) {
-            return res.status(403).json({ success: false, message: 'Invalid secret key' });
+            return res.status(403).json({ success: false, message: 'Invalid admin secret passkey' });
         }
 
         const targetId = userId || (req.user ? String(req.user.id) : null);

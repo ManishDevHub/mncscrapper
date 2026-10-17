@@ -11,7 +11,6 @@ import {
   LogOut,
   Sparkles,
   ShieldCheck,
-  Layers,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 

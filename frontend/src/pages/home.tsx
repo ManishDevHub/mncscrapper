@@ -16,9 +16,11 @@ import {
   Compass,
 } from "lucide-react";
 import api, { type Job, type Company, type Blog } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [locationTerm, setLocationTerm] = useState("");
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
@@ -82,6 +84,53 @@ export const Home: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-6">
+            {/* Admin Notice Banner if logged in as Admin */}
+            {isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-amber-300 shadow-lg"
+              >
+                <span className="font-medium flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <strong>Admin Mode Active:</strong> You can create and manage MNCs, jobs, and rounds that reflect directly on the site.
+                </span>
+                <Link
+                  to="/admin"
+                  className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition-all shadow-sm"
+                >
+                  Admin Control Panel →
+                </Link>
+              </motion.div>
+            )}
+
+            {/* 3D Floating Logo Showcase */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+              className="flex justify-center pt-2"
+            >
+              <motion.div
+                whileHover={{ rotateY: 18, rotateX: -10, scale: 1.08 }}
+                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                className="relative p-3.5 rounded-3xl bg-gradient-to-tr from-blue-600/30 via-indigo-600/20 to-purple-600/30 border border-blue-500/40 shadow-[0_10px_35px_rgba(59,130,246,0.3)] backdrop-blur-xl group cursor-pointer"
+                style={{ perspective: 1200 }}
+              >
+                <img
+                  src="/logo.png"
+                  alt="CareerHub 3D Logo"
+                  className="w-20 h-20 sm:w-24 sm:h-24 object-contain filter drop-shadow-[0_8px_20px_rgba(59,130,246,0.6)] group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images (1).png";
+                  }}
+                />
+                <div className="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full bg-blue-600 text-[10px] font-black uppercase tracking-wider text-white border border-blue-400 shadow-md">
+                  MNC 3D
+                </div>
+              </motion.div>
+            </motion.div>
+
             {/* Animated Pill Badge */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -290,10 +339,14 @@ export const Home: React.FC = () => {
           ) : (
             <div className="text-center py-12 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
               <Building2 className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-600 dark:text-zinc-400 text-sm">No companies yet. You can add one anytime!</p>
-              <Link to="/companies?create=true" className="inline-block mt-3 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white">
-                Add First Company
-              </Link>
+              <p className="text-slate-600 dark:text-zinc-400 text-sm">
+                {isAdmin ? "No companies added yet. You can create one or seed top MNCs." : "Verified MNC Directory is updating. New profiles coming soon!"}
+              </p>
+              {isAdmin && (
+                <Link to="/admin" className="inline-block mt-3 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white">
+                  Manage MNCs in Admin Dashboard
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -403,10 +456,14 @@ export const Home: React.FC = () => {
           ) : (
             <div className="text-center py-12 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
               <BriefcaseBusiness className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-600 dark:text-zinc-400 text-sm">No jobs listed yet. Post the first one!</p>
-              <Link to="/jobs?post=true" className="inline-block mt-3 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white">
-                Post First Job
-              </Link>
+              <p className="text-slate-600 dark:text-zinc-400 text-sm">
+                {isAdmin ? "No jobs listed yet. Post openings via Admin Dashboard." : "Fresh tech roles being indexed. Check back soon!"}
+              </p>
+              {isAdmin && (
+                <Link to="/admin" className="inline-block mt-3 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white">
+                  Create Jobs in Admin Dashboard
+                </Link>
+              )}
             </div>
           )}
         </div>

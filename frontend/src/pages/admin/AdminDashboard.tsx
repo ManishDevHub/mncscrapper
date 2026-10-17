@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
@@ -16,7 +16,6 @@ import {
   RefreshCw,
   Layers,
   Sparkles,
-  ArrowRight,
   Database,
   Eye,
   Key,
@@ -26,8 +25,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Modal } from "../../components/Modal";
 
 export const AdminDashboard: React.FC = () => {
-  const { user, isAdmin, token, refreshUser } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAdmin, refreshUser } = useAuth();
 
   // Active section tab
   const [activeTab, setActiveTab] = useState<"companies" | "jobs" | "blogs" | "access">("companies");

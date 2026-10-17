@@ -19,7 +19,7 @@ import { Modal } from "../components/Modal";
 export const CompanyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
@@ -231,20 +231,18 @@ export const CompanyDetail: React.FC = () => {
               </h2>
             </div>
 
-            <button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  navigate("/login");
-                } else {
+            {isAdmin && (
+              <button
+                onClick={() => {
                   setRoundNumber(String((interviewRounds.length || 0) + 1));
                   setIsAddRoundOpen(true);
-                }
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-xs font-bold transition-colors cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Interview Round
-            </button>
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-xs font-bold transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Add Interview Round
+              </button>
+            )}
           </div>
 
           {interviewRounds.length > 0 ? (
@@ -318,19 +316,15 @@ export const CompanyDetail: React.FC = () => {
               </h2>
             </div>
 
-            <button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  navigate("/login");
-                } else {
-                  setIsAddProductOpen(true);
-                }
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-xs font-bold transition-colors cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Product
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setIsAddProductOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-xs font-bold transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Add Product
+              </button>
+            )}
           </div>
 
           {products.length > 0 ? (
@@ -356,17 +350,16 @@ export const CompanyDetail: React.FC = () => {
                 No products recorded yet
               </p>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 mb-4">
-                Add main products and services associated with this company.
+                Products and key service offerings for this MNC.
               </p>
-              <button
-                onClick={() => {
-                  if (!isAuthenticated) navigate("/login");
-                  else setIsAddProductOpen(true);
-                }}
-                className="px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white"
-              >
-                Add First Product
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setIsAddProductOpen(true)}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white cursor-pointer"
+                >
+                  Add First Product
+                </button>
+              )}
             </div>
           )}
         </section>

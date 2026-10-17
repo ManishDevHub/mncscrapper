@@ -4,10 +4,11 @@ const express_1 = require("express");
 const companyController_1 = require("../controller/companyController");
 const auth_middleware_1 = require("../middleware/auth.middleware");
 const router = (0, express_1.Router)();
-router.post("/create", auth_middleware_1.authMiddleware, companyController_1.createInterViewRou);
-router.post("/create/:id", auth_middleware_1.authMiddleware, companyController_1.createInterViewRou);
-router.post("/update", auth_middleware_1.authMiddleware, companyController_1.updateRound);
-router.put("/:roundId", auth_middleware_1.authMiddleware, companyController_1.updateRound);
-router.delete("/delete", auth_middleware_1.authMiddleware, companyController_1.deleteRound);
-router.delete("/:roundId", auth_middleware_1.authMiddleware, companyController_1.deleteRound);
+// Admin-only interview round management
+router.post("/create", auth_middleware_1.authMiddleware, auth_middleware_1.adminMiddleware, companyController_1.createInterViewRou);
+router.post("/create/:id", auth_middleware_1.authMiddleware, auth_middleware_1.adminMiddleware, companyController_1.createInterViewRou);
+router.post("/update", auth_middleware_1.authMiddleware, auth_middleware_1.adminMiddleware, companyController_1.updateRound);
+router.put("/:roundId", auth_middleware_1.authMiddleware, auth_middleware_1.adminMiddleware, companyController_1.updateRound);
+router.delete("/delete", auth_middleware_1.authMiddleware, auth_middleware_1.adminMiddleware, companyController_1.deleteRound);
+router.delete("/:roundId", auth_middleware_1.authMiddleware, auth_middleware_1.adminMiddleware, companyController_1.deleteRound);
 exports.default = router;

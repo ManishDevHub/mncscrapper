@@ -24,6 +24,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [adminSecret, setAdminSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,11 +44,17 @@ const Register = () => {
         username: name,
         email,
         password,
+        adminSecret: adminSecret.trim() || undefined,
+        role: adminSecret.trim() === "admin123" ? "admin" : "user",
       });
 
       if (res.data.token && res.data.user) {
         login(res.data.token, res.data.user);
-        navigate("/jobs");
+        if (res.data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/jobs");
+        }
       } else {
         setError(res.data.message || "Registration failed");
       }
@@ -67,8 +74,15 @@ const Register = () => {
         <div className="hidden lg:block">
           <div className="max-w-xl">
             {/* Logo */}
-            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500">
-              <BriefcaseBusiness className="h-7 w-7 text-white" />
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl p-1 bg-gradient-to-tr from-blue-600/30 to-indigo-600/30 border border-blue-500/40 shadow-lg shadow-blue-500/25 overflow-hidden">
+              <img
+                src="/logo.png"
+                alt="CareerHub Logo"
+                className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(59,130,246,0.6)]"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images (1).png";
+                }}
+              />
             </div>
 
             <p className="mb-4 text-sm font-bold tracking-widest text-blue-600 dark:text-blue-400">
@@ -285,6 +299,26 @@ const Register = () => {
                       <Eye className="h-5 w-5" />
                     )}
                   </button>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="admin-secret"
+                  className="mb-2 flex items-center justify-between text-sm font-semibold text-slate-700 dark:text-slate-300"
+                >
+                  <span>Admin Passkey <span className="text-xs font-normal text-slate-400">(Optional - for site admins)</span></span>
+                </label>
+
+                <div className="relative">
+                  <input
+                    id="admin-secret"
+                    type="password"
+                    value={adminSecret}
+                    onChange={(e) => setAdminSecret(e.target.value)}
+                    placeholder="Enter passkey (e.g. admin123 for Admin role)"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-white/10 dark:bg-black dark:text-white dark:placeholder:text-slate-600"
+                  />
                 </div>
               </div>
 
