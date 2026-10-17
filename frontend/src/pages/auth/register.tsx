@@ -24,7 +24,6 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [adminSecret, setAdminSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,17 +43,11 @@ const Register = () => {
         username: name,
         email,
         password,
-        adminSecret: adminSecret.trim() || undefined,
-        role: adminSecret.trim() === "admin123" ? "admin" : "user",
       });
 
       if (res.data.token && res.data.user) {
         login(res.data.token, res.data.user);
-        if (res.data.user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/jobs");
-        }
+        navigate("/jobs");
       } else {
         setError(res.data.message || "Registration failed");
       }
@@ -299,26 +292,6 @@ const Register = () => {
                       <Eye className="h-5 w-5" />
                     )}
                   </button>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="admin-secret"
-                  className="mb-2 flex items-center justify-between text-sm font-semibold text-slate-700 dark:text-slate-300"
-                >
-                  <span>Admin Passkey <span className="text-xs font-normal text-slate-400">(Optional - for site admins)</span></span>
-                </label>
-
-                <div className="relative">
-                  <input
-                    id="admin-secret"
-                    type="password"
-                    value={adminSecret}
-                    onChange={(e) => setAdminSecret(e.target.value)}
-                    placeholder="Enter passkey (e.g. admin123 for Admin role)"
-                    className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-white/10 dark:bg-black dark:text-white dark:placeholder:text-slate-600"
-                  />
                 </div>
               </div>
 

@@ -462,7 +462,7 @@ export const AdminDashboard: React.FC = () => {
         }, 1000);
       }
     } catch (err: any) {
-      showToast("error", err.response?.data?.message || "Invalid Admin Secret Key. Try 'admin123'.");
+      showToast("error", err.response?.data?.message || "Invalid Admin Secret Passkey.");
     } finally {
       setPromoting(false);
     }
@@ -497,7 +497,7 @@ export const AdminDashboard: React.FC = () => {
                 type="password"
                 value={adminSecretKey}
                 onChange={(e) => setAdminSecretKey(e.target.value)}
-                placeholder="Enter secret (Default: admin123)"
+                placeholder="Enter secret passkey (e.g. rudra111)"
                 className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder:text-slate-600 focus:border-blue-500 focus:outline-none text-sm transition-all"
               />
             </div>

@@ -9,43 +9,42 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_1 = __importDefault(require("../db/prisma"));
 const signup = async (req, res) => {
     try {
-        const { username, email, password, adminSecret, role } = req.body;
+        const { username, email, password } = req.body;
         if (!username || !email || !password) {
             return res.status(400).json({
                 success: false,
                 message: 'Username, email, and password are required',
             });
         }
+        const normalizedEmail = email.toLowerCase().trim();
         const existingUser = await prisma_1.default.user.findFirst({
             where: {
                 OR: [
-                    { email },
-                    { username }
+                    { email: normalizedEmail },
+                    { username: username.trim() }
                 ]
             }
         });
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
+                message: existingUser.email === normalizedEmail ? 'Email already registered' : 'Username already taken'
             });
         }
         const hashedPassword = await bcrypt_1.default.hash(password, 10);
-        // Check if admin secret is provided or first user
-        let userRole = "user";
-        const totalUsers = await prisma_1.default.user.count();
-        if (totalUsers === 0 || adminSecret === (process.env.ADMIN_SECRET || "admin123") || role === "admin" && adminSecret === "admin123") {
-            userRole = "admin";
-        }
+        // Strict security: all signups are strictly regular users.
+        // Only the designated admin email receives admin role.
+        const adminEmail = (process.env.ADMIN_EMAIL || 'ramuk13476@gmail.com').toLowerCase().trim();
+        const userRole = normalizedEmail === adminEmail ? "admin" : "user";
         const newUser = await prisma_1.default.user.create({
             data: {
-                username,
-                email,
+                username: username.trim(),
+                email: normalizedEmail,
                 password: hashedPassword,
                 role: userRole
             }
         });
-        const token = jsonwebtoken_1.default.sign({ userId: newUser.id, email: newUser.email, username: newUser.username, role: newUser.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ userId: newUser.id, email: newUser.email, username: newUser.username, role: newUser.role }, process.env.JWT_SECRET || 'supersecret_careerhub_jwt_key_2026', { expiresIn: '7d' });
         return res.status(201).json({
             success: true,
             message: 'User created successfully',
@@ -73,9 +72,10 @@ const login = async (req, res) => {
                 message: 'Email and password are required',
             });
         }
+        const normalizedEmail = email.toLowerCase().trim();
         const user = await prisma_1.default.user.findUnique({
             where: {
-                email,
+                email: normalizedEmail,
             },
         });
         if (!user) {
@@ -85,7 +85,7 @@ const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ success: false, message: 'Invalid email or password' });
         }
-        const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email, username: user.username, role: user.role || 'user' }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+        const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email, username: user.username, role: user.role || 'user' }, process.env.JWT_SECRET || 'supersecret_careerhub_jwt_key_2026', { expiresIn: '7d' });
         return res.status(200).json({
             success: true,
             message: 'Logged in successfully',
@@ -130,9 +130,9 @@ exports.getMe = getMe;
 const makeAdmin = async (req, res) => {
     try {
         const { secret, userId } = req.body;
-        const validSecret = process.env.ADMIN_SECRET || 'admin123';
+        const validSecret = process.env.ADMIN_SECRET || 'rudra111';
         if (secret !== validSecret) {
-            return res.status(403).json({ success: false, message: 'Invalid secret key' });
+            return res.status(403).json({ success: false, message: 'Invalid admin secret passkey' });
         }
         const targetId = userId || (req.user ? String(req.user.id) : null);
         if (!targetId) {
