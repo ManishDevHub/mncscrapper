@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { createInterViewRou, deleteRound, updateRound } from "../controller/companyController";
+import { authMiddleware } from "../middleware/auth.middleware";
+const router = Router();
+router.post("/create", authMiddleware, createInterViewRou);
+router.post("/create/:id", authMiddleware, createInterViewRou);
+router.post("/update", authMiddleware, updateRound);
+router.put("/:roundId", authMiddleware, updateRound);
+router.delete("/delete", authMiddleware, deleteRound);
+router.delete("/:roundId", authMiddleware, deleteRound);
+export default router;

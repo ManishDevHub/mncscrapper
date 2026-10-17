@@ -1,9 +1,13 @@
+import { Router } from "express";
 import { createProduct, deleteProduct, updateProduct } from "../controller/companyController";
 import { authMiddleware } from "../middleware/auth.middleware";
-import router from "./blog.route";
 
-router.post("/create", authMiddleware , createProduct)
-router.post("/product", authMiddleware, updateProduct)
-router.delete("/delete" , authMiddleware, deleteProduct)
+const router = Router();
 
-export default router;
+router.post("/create", authMiddleware, createProduct);
+router.post("/create/:id", authMiddleware, createProduct);
+router.put("/:productId", authMiddleware, updateProduct);
+router.delete("/:productId", authMiddleware, deleteProduct);
+router.delete("/delete", authMiddleware, deleteProduct);
+
+export default router;

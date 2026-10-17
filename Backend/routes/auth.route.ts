@@ -1,10 +1,9 @@
-import Router from "express"
-import { signup } from "../controller/authController"
-import { login } from "../controller/authController"
+import { Router } from "express";
+import { signup, login } from "../controller/authController";
 
-const Blogrouter = Router();
+const router = Router();
 
-Blogrouter.post("/signup" , signup)
-Blogrouter.post("/login" , login)
+router.post("/signup", signup);
+router.post("/login", login);
 
-export default Blogrouter
+export default router;

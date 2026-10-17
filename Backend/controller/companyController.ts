@@ -1,609 +1,597 @@
 
-import { Request , Response , NextFunction } from 'express'
-import prisma from '../db/prisma'
+import { Request, Response, NextFunction } from 'express';
+import prisma from '../db/prisma';
 
+export const createCompany = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { name, establishedYear, type, industry, description, website, logo, slug } = req.body;
 
-
-
-
-export const createCompany = async ( req: Request , res: Response , next: NextFunction) => {
-
-    try{
-
-        const {  name, establishedYear, type, industry, description, website, logo,} = req.body;
-
-        if(!name) {
+        if (!name) {
             return res.status(400).json({
                 success: false,
                 message: "Company name is required"
-            })
+            });
+        }
+
+        const baseSlug = slug || name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        let finalSlug = baseSlug;
+
+        // Check if slug exists
+        const existingSlug = await prisma.company.findUnique({
+            where: { slug: finalSlug }
+        });
+        if (existingSlug) {
+            finalSlug = `${baseSlug}-${Date.now()}`;
         }
 
         const company = await prisma.company.create({
-            data:{
-
+            data: {
                 name,
-                establishedYear,
-                type,
-                industry,
-                description,
-                website,
-                logo
+                slug: finalSlug,
+                establishedYear: establishedYear ? Number(establishedYear) : null,
+                type: type || null,
+                industry: industry || null,
+                description: description || (req.body as any).discription || null,
+                website: website || null,
+                logo: logo || null
             }
-        })
+        });
 
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
             message: "Company created successfully",
             data: company
-
-        })
-
-
+        });
 
     } catch (error) {
+        console.error('createCompany error:', error);
         return res.status(500).json({
             success: false,
-            message: " Internal server error"
-
-        })
+            message: "Internal server error"
+        });
     }
-}
+};
 
-export const getAllCompanies = async ( req: Request , res: Response , next: NextFunction) {
-
+export const getAllCompanies = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { search, industry, type } = req.query;
+
+        const whereClause: any = {};
+
+        if (industry && typeof industry === 'string' && industry !== 'All') {
+            whereClause.industry = {
+                contains: industry,
+                mode: 'insensitive'
+            };
+        }
+
+        if (type && typeof type === 'string' && type !== 'All') {
+            whereClause.type = {
+                contains: type,
+                mode: 'insensitive'
+            };
+        }
+
+        if (search && typeof search === 'string') {
+            whereClause.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+                { industry: { contains: search, mode: 'insensitive' } },
+            ];
+        }
 
         const companies = await prisma.company.findMany({
-
+            where: whereClause,
             orderBy: {
                 name: "asc"
-
             },
-            include:{
+            include: {
+                product: {
+                    select: { id: true, name: true }
+                },
+                interviewRounds: {
+                    orderBy: { roundNumber: 'asc' }
+                },
                 _count: {
-                    select:{
-                        products: true,
+                    select: {
+                        product: true,
                         interviewRounds: true,
                     }
                 }
             }
-        })
+        });
 
         return res.status(200).json({
             success: true,
             count: companies.length,
             data: companies,
+        });
 
-        })
-
-    } catch (error){
+    } catch (error) {
+        console.error('getAllCompanies error:', error);
         return res.status(500).json({
-            success:false,
+            success: false,
             message: "Internal server error",
-        })
+        });
     }
-}
+};
 
-export const getCompanyById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { id } = req.params;
+export const getCompanyById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const companyId = Number(id);
 
-    const companyId = Number(id);
+        let company = null;
 
-    if (Number.isNaN(companyId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid company ID",
-      });
-    }
-
-    const company = await prisma.company.findUnique({
-      where: {
-        id: companyId,
-      },
-      include: {
-        products: {
-          orderBy: {
-            name: "asc",
-          },
-        },
-
-        interviewRounds: {
-          orderBy: {
-            roundNumber: "asc",
-          },
-        },
-      },
-    });
-
-    if (!company) {
-      return res.status(404).json({
-        success: false,
-        message: "Company not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: company,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-
-export const updateCompany = async ( req: Request , res: Response , next: NextFunction ) => {
-
-    try{
-
-          const {id} = req.params
-    const companyId = Number(id)
-
-    if( Number.isNaN(companyId)){
-        return res.status(400).json({
-            success: false,
-            message: "Invalid company Id "
-        })
-    }
-const existingCompany = await prisma.company.findUnique({
-    where:{
-        id: companyId
-    }
-})
-
-if(!existingCompany){
-    return res.status(404).json({
-        success: false,
-        message: " Company not found"
-    })
-}
-
-const { name ,  establishedYear, type,industry, description, website, logo,} = req.body;
-
-const updatedCompany = await prisma.company.update({
-
-    where: {
-        id : companyId
-    },
-    data:{
-        name,
-        establishedYear,
-        type,
-        industry,
-        description,
-        website,
-        logo
-    }
-})
-
-return res.status(200).json({
-    success: true ,
-    message: "Company updated successfully"
-})
-
-    } catch(error){
-        next(error)
-    }
-  
-
-}
-
-
-export const deleteCompany = async ( req:Request , res:Response) => {
-    const id = req.params
-    const companyId = Number(id);
-
-    if(Number.isNaN(companyId)){
-        return res.status(400).json({
-
-            success: false,
-            message: "Invalid company Id"
-        })
-
-
-
-    }
-
-    const company = await prisma.company.findUnique({
-        where: {
-            id: companyId,
-        }
-    })
-
-    if(!company){
-        return res.status(404).json({
-            success: false,
-            message: "company not found"
-        })
-    }
-
-    await prisma.company.delete({
-        where:{
-            id: companyId
-        }
-    })
-
-    return res.status(200).json({
-        success: true,
-        message: "company deleted successfully"
-    })
-
-
-}
-
-export const createProduct = async (req:Request , res: Response) =>{
-
-    try{
-
-        const { id } = req.params
-        const companyId = Number(id)
-
-        if(Number.isNaN(companyId)){
-            return res.status(400).json({
-                success:false,
-                message: "Invalid company Id",
-            })
+        if (!Number.isNaN(companyId)) {
+            company = await prisma.company.findUnique({
+                where: { id: companyId },
+                include: {
+                    product: {
+                        orderBy: { name: "asc" },
+                    },
+                    interviewRounds: {
+                        orderBy: { roundNumber: "asc" },
+                    },
+                },
+            });
         }
 
-        const { name } = req.body
-         if (!name) {
-      return res.status(400).json({
-        success: false,
-        message: "Product name is required",
-      });
-    }
-
-    const company = await prisma.company.findUnique({
-      where: {
-        id: companyId,
-      },
-    });
-
-    if (!company) {
-      return res.status(404).json({
-        success: false,
-        message: "Company not found",
-      });
-    }
-
-    const product = await prisma.product.create({
-      data: {
-        name,
-        companyId,
-      },
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Product created successfully",
-      data: product,
-    });
-
-
-    } catch (error){
-
-        return res.status(500).json({
-            success: false,
-            message: "intenal server error" 
-        })
-    }
-}
-
-
-export const updateProduct = async (req:Request , res:Response) => {
-
-    try{
-
-        const { id , productId } = req.params;
-        const companyId = Number(id)
-        const productIdNumber = Number(productId)
-
-        if(Number.isNaN(companyId) || Number.isNaN(productIdNumber)){
-            return res.status(400).json({
-
-                success: false ,
-                message: " Product id or company id not found "
-            })
+        const idParam = Array.isArray(id) ? id[0] : id;
+        if (!company && idParam) {
+            // Try lookup by slug
+            company = await prisma.company.findUnique({
+                where: { slug: idParam },
+                include: {
+                    product: {
+                        orderBy: { name: "asc" },
+                    },
+                    interviewRounds: {
+                        orderBy: { roundNumber: "asc" },
+                    },
+                },
+            });
         }
 
-        const { name } = req.body
-
-        if(!name){
+        if (!company) {
             return res.status(404).json({
-
                 success: false,
-                message:"Product name required"
-            })
+                message: "Company not found",
+            });
         }
-
-        const product = await prisma.product.findFirst({
-            where:{
-                id: productIdNumber,
-                companyId
-            }
-        })
-
-        if( !product){
-            return res.status(404).json({
-
-                success: false,
-                message: " Product not found",
-            })
-        }
-
-        const updatedProduct = await prisma.product.update({
-            where:{
-                id: productIdNumber
-            },
-            data:{
-                name
-            }
-        })
 
         return res.status(200).json({
-            success:true,
-            message:"Product updated successfully",
-        })
-
-    } catch(error){
+            success: true,
+            data: company,
+        });
+    } catch (error) {
+        console.error('getCompanyById error:', error);
         return res.status(500).json({
             success: false,
             message: "Internal server error"
-        })
+        });
     }
-}
+};
 
+export const updateCompany = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const companyId = Number(id);
 
-export const deleteProduct = async( req:Request , res: Response , next:NextFunction) => {
-
-    try{
-
-        const { id , productId} = req.params;
-        const companyId = Number(productId)
-        const companyIdProduct  = Number(id)
-
-        if(Number.isNaN(companyId) || Number.isNaN(companyIdProduct)){
+        if (Number.isNaN(companyId)) {
             return res.status(400).json({
                 success: false,
-                message: "product or company id required"
-            })
+                message: "Invalid company Id"
+            });
         }
 
-        const product = await prisma.product.findFirst({
-            where:{
-                id:companyIdProduct
-            }
-        })
+        const existingCompany = await prisma.company.findUnique({
+            where: { id: companyId }
+        });
 
-        if(!product){
+        if (!existingCompany) {
             return res.status(404).json({
                 success: false,
-                message: " Product not found"
-            })
+                message: "Company not found"
+            });
         }
 
-        const deletedProduct = await prisma.product.delete({
-            where:{
-                id: companyIdProduct,
-                companyId
+        const { name, establishedYear, type, industry, description, website, logo } = req.body;
+
+        const updatedCompany = await prisma.company.update({
+            where: { id: companyId },
+            data: {
+                name: name ?? existingCompany.name,
+                establishedYear: establishedYear !== undefined ? Number(establishedYear) : existingCompany.establishedYear,
+                type: type ?? existingCompany.type,
+                industry: industry ?? existingCompany.industry,
+                description: description !== undefined ? description : (req.body as any).discription ?? existingCompany.description,
+                website: website ?? existingCompany.website,
+                logo: logo ?? existingCompany.logo
             }
-        })
+        });
 
         return res.status(200).json({
+            success: true,
+            message: "Company updated successfully",
+            data: updatedCompany
+        });
 
-            success: false,
-            message: " Product deleted successfully"
-
-        })
-
-
-    } catch( error) {
-
+    } catch (error) {
+        console.error('updateCompany error:', error);
         return res.status(500).json({
             success: false,
-             message: " Internal server error",
-             data: "your data"
-        })
+            message: "Internal server error"
+        });
     }
-}
+};
 
+export const deleteCompany = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const companyId = Number(id);
 
- export const createInterViewRou = async ( req: Request , res:Response) => {
-
-
-    try{
-
-        const id = req.params
-        const companyId = Number(id)
-
-        if(Number.isNaN(companyId)){
+        if (Number.isNaN(companyId)) {
             return res.status(400).json({
                 success: false,
-                message: " Company Id is required"
-            })
+                message: "Invalid company Id"
+            });
         }
-
-        const { roundNumber , title , description } = req.body;
-
 
         const company = await prisma.company.findUnique({
+            where: { id: companyId }
+        });
 
-            where:{
-                id: companyId
-            }
-        })
-
-        if(!company){
+        if (!company) {
             return res.status(404).json({
-
-                success: false, 
-                message: " company  not found"
-            })
+                success: false,
+                message: "Company not found"
+            });
         }
 
-        const exitstingRound = await prisma.interviewRound.findFirst({
-            where:{
-                id: companyId,
-                roundNumber,
-                
-            }
-        })
+        await prisma.company.delete({
+            where: { id: companyId }
+        });
 
-        if(exitstingRound){
+        return res.status(200).json({
+            success: true,
+            message: "Company deleted successfully"
+        });
+
+    } catch (error) {
+        console.error('deleteCompany error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
+export const createProduct = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const companyId = Number(id);
+
+        if (Number.isNaN(companyId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid company Id",
+            });
+        }
+
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).json({
+                success: false,
+                message: "Product name is required",
+            });
+        }
+
+        const company = await prisma.company.findUnique({
+            where: { id: companyId },
+        });
+
+        if (!company) {
+            return res.status(404).json({
+                success: false,
+                message: "Company not found",
+            });
+        }
+
+        const product = await prisma.product.create({
+            data: {
+                name,
+                companyId,
+            },
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Product created successfully",
+            data: product,
+        });
+
+    } catch (error) {
+        console.error('createProduct error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
+export const updateProduct = async (req: Request, res: Response) => {
+    try {
+        const { id, productId } = req.params;
+        const pId = Number(productId || id);
+
+        if (Number.isNaN(pId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid product ID is required"
+            });
+        }
+
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).json({
+                success: false,
+                message: "Product name is required"
+            });
+        }
+
+        const product = await prisma.product.findUnique({
+            where: { id: pId }
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+            });
+        }
+
+        const updatedProduct = await prisma.product.update({
+            where: { id: pId },
+            data: { name }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Product updated successfully",
+            data: updatedProduct
+        });
+
+    } catch (error) {
+        console.error('updateProduct error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id, productId } = req.params;
+        const pId = Number(productId || id);
+
+        if (Number.isNaN(pId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid product ID is required"
+            });
+        }
+
+        const product = await prisma.product.findUnique({
+            where: { id: pId }
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found"
+            });
+        }
+
+        await prisma.product.delete({
+            where: { id: pId }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Product deleted successfully"
+        });
+
+    } catch (error) {
+        console.error('deleteProduct error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
+export const createInterViewRou = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const companyId = Number(id || req.body.companyId);
+
+        if (Number.isNaN(companyId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Valid Company ID is required"
+            });
+        }
+
+        const { roundNumber, title, description } = req.body;
+        const roundNum = Number(roundNumber);
+
+        if (!title || Number.isNaN(roundNum)) {
+            return res.status(400).json({
+                success: false,
+                message: "roundNumber (number) and title are required"
+            });
+        }
+
+        const company = await prisma.company.findUnique({
+            where: { id: companyId }
+        });
+
+        if (!company) {
+            return res.status(404).json({
+                success: false,
+                message: "Company not found"
+            });
+        }
+
+        const existingRound = await prisma.interviewRound.findUnique({
+            where: {
+                companyId_roundNumber: {
+                    companyId,
+                    roundNumber: roundNum
+                }
+            }
+        });
+
+        if (existingRound) {
             return res.status(409).json({
                 success: false,
-                message: " Round all ready exist"
-            })
+                message: `Interview round #${roundNum} already exists for this company`
+            });
         }
 
         const round = await prisma.interviewRound.create({
-            data:{
-
+            data: {
                 title,
-               description,
-                roundNumber,
+                description: description || '',
+                roundNumber: roundNum,
                 companyId
             }
-        })
-        
+        });
+
         return res.status(201).json({
-            sucess: true,
-            message: " round created successfully",
-            data:round
-        })
+            success: true,
+            message: "Interview round created successfully",
+            data: round
+        });
 
-    } catch ( error) {
-
+    } catch (error) {
+        console.error('createInterviewRound error:', error);
         return res.status(500).json({
             success: false,
-            message: " INternal server error"
-            
-        })
+            message: "Internal server error"
+        });
     }
-}
+};
 
+export const updateRound = async (req: Request, res: Response) => {
+    try {
+        const { id, roundId } = req.params;
+        const companyId = Number(id || req.body.companyId || req.body.id);
+        const roundNum = Number(roundId || req.body.roundNumber);
 
-export const updateRound = async( req: Request , res: Response ) => {
-
-    try{
-
-        const { id , roundId} = req.body;
-        const companyId = Number(id)
-        const roundIdNumber = Number(roundId)
-
-
-        if(Number.isNaN(companyId) || Number.isNaN(roundIdNumber)) {
-
+        if (Number.isNaN(companyId) || Number.isNaN(roundNum)) {
             return res.status(400).json({
                 success: false,
-                message: " CompanyId or roundIdNumber not found"
-            })
+                message: "Company ID and roundNumber are required"
+            });
         }
 
-        const existingRound = await prisma.interviewRound.findFirst({
-            where:{
-                id: roundIdNumber,
-                companyId
+        const existingRound = await prisma.interviewRound.findUnique({
+            where: {
+                companyId_roundNumber: {
+                    companyId,
+                    roundNumber: roundNum
+                }
             }
-        })
+        });
 
-        if(!existingRound){
+        if (!existingRound) {
             return res.status(404).json({
                 success: false,
                 message: "Interview round not found"
-            })
+            });
         }
 
-       const { roundNumber , title ,  description } = req.body;
+        const { title, description } = req.body;
 
-       const update = await prisma.interviewRound.update({
-
-        where:{
-
-            id: roundIdNumber,
-        },
-        data:{
-            title,
-            roundNumber,
-            description
-        }
-       })
-
-       return res.status(201).json({
-
-        success: true,
-        message: "Interview round updated successfully",
-        data:update
-       })
-
-
-    } catch( error){
-        return res.status(500).json({
-            success: false , 
-             message: " Internal server error" ,
-        })
-    }
-}
-
-
- export const deleteRound = async(req: Request , res: Response )=>{
-
-    try{ 
-
-        const { id , roundId} = req.body
-
-        const comapanyId = Number(id)
-        const roundIdNumber = Number(roundId);
-
-        if( Number.isNaN(comapanyId) || Number.isNaN(roundIdNumber)){
-            return res.status(409).json({
-
-                success: false,
-                message: " comapny or roundID not found"
-            })
-        }
-
-        const existing = await prisma.interviewRound.findFirst({
-            where:{
-                id: roundIdNumber,
-                comapanyId
+        const updated = await prisma.interviewRound.update({
+            where: {
+                companyId_roundNumber: {
+                    companyId,
+                    roundNumber: roundNum
+                }
+            },
+            data: {
+                title: title ?? existingRound.title,
+                description: description ?? existingRound.description
             }
-        })
-
-        if(!existing){
-            return res.status(404).json({
-
-                suceess: false,
-                message: " Interview round not found"
-            })
-        }
-
-        const dalete = await prisma.interviewRound.delete({
-
-            where:{
-                id: roundIdNumber ,
-                
-            }
-        })
+        });
 
         return res.status(200).json({
+            success: true,
+            message: "Interview round updated successfully",
+            data: updated
+        });
 
-            success: false,
-         message: "round deleted successfully"
-        })
-
-
-    } catch( error) {
-
+    } catch (error) {
+        console.error('updateRound error:', error);
         return res.status(500).json({
             success: false,
-            message: " Internal server error"
-        })
+            message: "Internal server error"
+        });
     }
-}
+};
+
+export const deleteRound = async (req: Request, res: Response) => {
+    try {
+        const { id, roundId } = req.params;
+        const companyId = Number(id || req.body.companyId || req.body.id);
+        const roundNum = Number(roundId || req.body.roundNumber);
+
+        if (Number.isNaN(companyId) || Number.isNaN(roundNum)) {
+            return res.status(400).json({
+                success: false,
+                message: "Company ID and roundNumber are required"
+            });
+        }
+
+        const existing = await prisma.interviewRound.findUnique({
+            where: {
+                companyId_roundNumber: {
+                    companyId,
+                    roundNumber: roundNum
+                }
+            }
+        });
+
+        if (!existing) {
+            return res.status(404).json({
+                success: false,
+                message: "Interview round not found"
+            });
+        }
+
+        await prisma.interviewRound.delete({
+            where: {
+                companyId_roundNumber: {
+                    companyId,
+                    roundNumber: roundNum
+                }
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Interview round deleted successfully"
+        });
+
+    } catch (error) {
+        console.error('deleteRound error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};

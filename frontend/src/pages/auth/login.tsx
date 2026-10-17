@@ -23,7 +23,7 @@ const Login = () => {
       password,
     });
 
-    // Backend login API will be connected here
+ 
   };
 
   return (
@@ -54,7 +54,7 @@ const Login = () => {
             <div className="mt-10 flex gap-8">
               <div>
                 <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  500+
+                  100+
                 </p>
 
                 <p className="text-sm text-slate-500 dark:text-slate-400">
