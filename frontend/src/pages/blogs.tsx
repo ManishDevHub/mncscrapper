@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   BookOpen,
   Search,
   PlusCircle,
   ArrowRight,
-  Clock,
   Calendar,
   CheckCircle,
-  Sparkles,
 } from "lucide-react";
-import api, { Blog } from "../services/api";
+import api, { type Blog } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
 

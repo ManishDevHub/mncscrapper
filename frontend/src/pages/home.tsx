@@ -14,9 +14,8 @@ import {
   Award,
   Layers,
   Compass,
-  CheckCircle2,
 } from "lucide-react";
-import api, { Job, Company, Blog } from "../services/api";
+import api, { type Job, type Company, type Blog } from "../services/api";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();

@@ -7,21 +7,15 @@ import {
   MapPin,
   ExternalLink,
   PlusCircle,
-  Filter,
-  DollarSign,
   Clock,
-  Sparkles,
-  Building2,
-  Calendar,
-  X,
   CheckCircle,
 } from "lucide-react";
-import api, { Job } from "../services/api";
+import api, { type Job } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
 
 export const Jobs: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 

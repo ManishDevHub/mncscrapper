@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  Building2,
   Globe,
   Calendar,
   Layers,
@@ -10,13 +9,10 @@ import {
   PlusCircle,
   ArrowLeft,
   ExternalLink,
-  CheckCircle,
   BriefcaseBusiness,
   AlertCircle,
-  HelpCircle,
-  Share2,
 } from "lucide-react";
-import api, { Company, Product, InterviewRound } from "../services/api";
+import api, { type Company } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
 

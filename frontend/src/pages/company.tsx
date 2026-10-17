@@ -5,15 +5,12 @@ import {
   Building2,
   Search,
   PlusCircle,
-  ExternalLink,
   ChevronRight,
   Layers,
   Award,
-  Globe,
-  Calendar,
   CheckCircle,
 } from "lucide-react";
-import api, { Company } from "../services/api";
+import api, { type Company } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
 

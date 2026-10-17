@@ -6,11 +6,10 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
-  Share2,
   BriefcaseBusiness,
   AlertCircle,
 } from "lucide-react";
-import api, { Blog } from "../services/api";
+import api, { type Blog } from "../services/api";
 
 export const BlogDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
