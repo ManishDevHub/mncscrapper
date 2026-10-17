@@ -1,5 +1,11 @@
-import jwt from "jsonwebtoken";
-export const authMiddleware = (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authMiddleware = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const authMiddleware = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -17,7 +23,7 @@ export const authMiddleware = (req, res, next) => {
         }
         const token = parts[1];
         const secret = process.env.JWT_SECRET || "secret";
-        const decoded = jwt.verify(token, secret);
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
         req.user = {
             id: decoded.userId || decoded.id,
             email: decoded.email,
@@ -32,3 +38,4 @@ export const authMiddleware = (req, res, next) => {
         });
     }
 };
+exports.authMiddleware = authMiddleware;

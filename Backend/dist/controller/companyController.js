@@ -1,5 +1,11 @@
-import prisma from '../db/prisma';
-export const createCompany = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteRound = exports.updateRound = exports.createInterViewRou = exports.deleteProduct = exports.updateProduct = exports.createProduct = exports.deleteCompany = exports.updateCompany = exports.getCompanyById = exports.getAllCompanies = exports.createCompany = void 0;
+const prisma_1 = __importDefault(require("../db/prisma"));
+const createCompany = async (req, res, next) => {
     try {
         const { name, establishedYear, type, industry, description, website, logo, slug } = req.body;
         if (!name) {
@@ -11,13 +17,13 @@ export const createCompany = async (req, res, next) => {
         const baseSlug = slug || name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
         let finalSlug = baseSlug;
         // Check if slug exists
-        const existingSlug = await prisma.company.findUnique({
+        const existingSlug = await prisma_1.default.company.findUnique({
             where: { slug: finalSlug }
         });
         if (existingSlug) {
             finalSlug = `${baseSlug}-${Date.now()}`;
         }
-        const company = await prisma.company.create({
+        const company = await prisma_1.default.company.create({
             data: {
                 name,
                 slug: finalSlug,
@@ -43,7 +49,8 @@ export const createCompany = async (req, res, next) => {
         });
     }
 };
-export const getAllCompanies = async (req, res, next) => {
+exports.createCompany = createCompany;
+const getAllCompanies = async (req, res, next) => {
     try {
         const { search, industry, type } = req.query;
         const whereClause = {};
@@ -66,7 +73,7 @@ export const getAllCompanies = async (req, res, next) => {
                 { industry: { contains: search, mode: 'insensitive' } },
             ];
         }
-        const companies = await prisma.company.findMany({
+        const companies = await prisma_1.default.company.findMany({
             where: whereClause,
             orderBy: {
                 name: "asc"
@@ -100,13 +107,14 @@ export const getAllCompanies = async (req, res, next) => {
         });
     }
 };
-export const getCompanyById = async (req, res, next) => {
+exports.getAllCompanies = getAllCompanies;
+const getCompanyById = async (req, res, next) => {
     try {
         const { id } = req.params;
         const companyId = Number(id);
         let company = null;
         if (!Number.isNaN(companyId)) {
-            company = await prisma.company.findUnique({
+            company = await prisma_1.default.company.findUnique({
                 where: { id: companyId },
                 include: {
                     product: {
@@ -121,7 +129,7 @@ export const getCompanyById = async (req, res, next) => {
         const idParam = Array.isArray(id) ? id[0] : id;
         if (!company && idParam) {
             // Try lookup by slug
-            company = await prisma.company.findUnique({
+            company = await prisma_1.default.company.findUnique({
                 where: { slug: idParam },
                 include: {
                     product: {
@@ -152,7 +160,8 @@ export const getCompanyById = async (req, res, next) => {
         });
     }
 };
-export const updateCompany = async (req, res, next) => {
+exports.getCompanyById = getCompanyById;
+const updateCompany = async (req, res, next) => {
     try {
         const { id } = req.params;
         const companyId = Number(id);
@@ -162,7 +171,7 @@ export const updateCompany = async (req, res, next) => {
                 message: "Invalid company Id"
             });
         }
-        const existingCompany = await prisma.company.findUnique({
+        const existingCompany = await prisma_1.default.company.findUnique({
             where: { id: companyId }
         });
         if (!existingCompany) {
@@ -172,7 +181,7 @@ export const updateCompany = async (req, res, next) => {
             });
         }
         const { name, establishedYear, type, industry, description, website, logo } = req.body;
-        const updatedCompany = await prisma.company.update({
+        const updatedCompany = await prisma_1.default.company.update({
             where: { id: companyId },
             data: {
                 name: name ?? existingCompany.name,
@@ -198,7 +207,8 @@ export const updateCompany = async (req, res, next) => {
         });
     }
 };
-export const deleteCompany = async (req, res) => {
+exports.updateCompany = updateCompany;
+const deleteCompany = async (req, res) => {
     try {
         const { id } = req.params;
         const companyId = Number(id);
@@ -208,7 +218,7 @@ export const deleteCompany = async (req, res) => {
                 message: "Invalid company Id"
             });
         }
-        const company = await prisma.company.findUnique({
+        const company = await prisma_1.default.company.findUnique({
             where: { id: companyId }
         });
         if (!company) {
@@ -217,7 +227,7 @@ export const deleteCompany = async (req, res) => {
                 message: "Company not found"
             });
         }
-        await prisma.company.delete({
+        await prisma_1.default.company.delete({
             where: { id: companyId }
         });
         return res.status(200).json({
@@ -233,7 +243,8 @@ export const deleteCompany = async (req, res) => {
         });
     }
 };
-export const createProduct = async (req, res) => {
+exports.deleteCompany = deleteCompany;
+const createProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const companyId = Number(id);
@@ -250,7 +261,7 @@ export const createProduct = async (req, res) => {
                 message: "Product name is required",
             });
         }
-        const company = await prisma.company.findUnique({
+        const company = await prisma_1.default.company.findUnique({
             where: { id: companyId },
         });
         if (!company) {
@@ -259,7 +270,7 @@ export const createProduct = async (req, res) => {
                 message: "Company not found",
             });
         }
-        const product = await prisma.product.create({
+        const product = await prisma_1.default.product.create({
             data: {
                 name,
                 companyId,
@@ -279,7 +290,8 @@ export const createProduct = async (req, res) => {
         });
     }
 };
-export const updateProduct = async (req, res) => {
+exports.createProduct = createProduct;
+const updateProduct = async (req, res) => {
     try {
         const { id, productId } = req.params;
         const pId = Number(productId || id);
@@ -296,7 +308,7 @@ export const updateProduct = async (req, res) => {
                 message: "Product name is required"
             });
         }
-        const product = await prisma.product.findUnique({
+        const product = await prisma_1.default.product.findUnique({
             where: { id: pId }
         });
         if (!product) {
@@ -305,7 +317,7 @@ export const updateProduct = async (req, res) => {
                 message: "Product not found",
             });
         }
-        const updatedProduct = await prisma.product.update({
+        const updatedProduct = await prisma_1.default.product.update({
             where: { id: pId },
             data: { name }
         });
@@ -323,7 +335,8 @@ export const updateProduct = async (req, res) => {
         });
     }
 };
-export const deleteProduct = async (req, res, next) => {
+exports.updateProduct = updateProduct;
+const deleteProduct = async (req, res, next) => {
     try {
         const { id, productId } = req.params;
         const pId = Number(productId || id);
@@ -333,7 +346,7 @@ export const deleteProduct = async (req, res, next) => {
                 message: "Valid product ID is required"
             });
         }
-        const product = await prisma.product.findUnique({
+        const product = await prisma_1.default.product.findUnique({
             where: { id: pId }
         });
         if (!product) {
@@ -342,7 +355,7 @@ export const deleteProduct = async (req, res, next) => {
                 message: "Product not found"
             });
         }
-        await prisma.product.delete({
+        await prisma_1.default.product.delete({
             where: { id: pId }
         });
         return res.status(200).json({
@@ -358,7 +371,8 @@ export const deleteProduct = async (req, res, next) => {
         });
     }
 };
-export const createInterViewRou = async (req, res) => {
+exports.deleteProduct = deleteProduct;
+const createInterViewRou = async (req, res) => {
     try {
         const { id } = req.params;
         const companyId = Number(id || req.body.companyId);
@@ -376,7 +390,7 @@ export const createInterViewRou = async (req, res) => {
                 message: "roundNumber (number) and title are required"
             });
         }
-        const company = await prisma.company.findUnique({
+        const company = await prisma_1.default.company.findUnique({
             where: { id: companyId }
         });
         if (!company) {
@@ -385,7 +399,7 @@ export const createInterViewRou = async (req, res) => {
                 message: "Company not found"
             });
         }
-        const existingRound = await prisma.interviewRound.findUnique({
+        const existingRound = await prisma_1.default.interviewRound.findUnique({
             where: {
                 companyId_roundNumber: {
                     companyId,
@@ -399,7 +413,7 @@ export const createInterViewRou = async (req, res) => {
                 message: `Interview round #${roundNum} already exists for this company`
             });
         }
-        const round = await prisma.interviewRound.create({
+        const round = await prisma_1.default.interviewRound.create({
             data: {
                 title,
                 description: description || '',
@@ -421,7 +435,8 @@ export const createInterViewRou = async (req, res) => {
         });
     }
 };
-export const updateRound = async (req, res) => {
+exports.createInterViewRou = createInterViewRou;
+const updateRound = async (req, res) => {
     try {
         const { id, roundId } = req.params;
         const companyId = Number(id || req.body.companyId || req.body.id);
@@ -432,7 +447,7 @@ export const updateRound = async (req, res) => {
                 message: "Company ID and roundNumber are required"
             });
         }
-        const existingRound = await prisma.interviewRound.findUnique({
+        const existingRound = await prisma_1.default.interviewRound.findUnique({
             where: {
                 companyId_roundNumber: {
                     companyId,
@@ -447,7 +462,7 @@ export const updateRound = async (req, res) => {
             });
         }
         const { title, description } = req.body;
-        const updated = await prisma.interviewRound.update({
+        const updated = await prisma_1.default.interviewRound.update({
             where: {
                 companyId_roundNumber: {
                     companyId,
@@ -473,7 +488,8 @@ export const updateRound = async (req, res) => {
         });
     }
 };
-export const deleteRound = async (req, res) => {
+exports.updateRound = updateRound;
+const deleteRound = async (req, res) => {
     try {
         const { id, roundId } = req.params;
         const companyId = Number(id || req.body.companyId || req.body.id);
@@ -484,7 +500,7 @@ export const deleteRound = async (req, res) => {
                 message: "Company ID and roundNumber are required"
             });
         }
-        const existing = await prisma.interviewRound.findUnique({
+        const existing = await prisma_1.default.interviewRound.findUnique({
             where: {
                 companyId_roundNumber: {
                     companyId,
@@ -498,7 +514,7 @@ export const deleteRound = async (req, res) => {
                 message: "Interview round not found"
             });
         }
-        await prisma.interviewRound.delete({
+        await prisma_1.default.interviewRound.delete({
             where: {
                 companyId_roundNumber: {
                     companyId,
@@ -519,3 +535,4 @@ export const deleteRound = async (req, res) => {
         });
     }
 };
+exports.deleteRound = deleteRound;

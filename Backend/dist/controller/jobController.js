@@ -1,5 +1,11 @@
-import prisma from '../db/prisma';
-export const createJob = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteJob = exports.UpdateJob = exports.getJobById = exports.getAllJobs = exports.createJob = void 0;
+const prisma_1 = __importDefault(require("../db/prisma"));
+const createJob = async (req, res, next) => {
     try {
         const { title, company, Company, location, jobType, experience, exprerience, exprience, description, skills, salary, applyLink, applyUrl } = req.body;
         const companyName = Company || company;
@@ -16,7 +22,7 @@ export const createJob = async (req, res, next) => {
                 message: 'All required fields (title, company, location, jobType, experience, salary, applyLink) must be provided'
             });
         }
-        const job = await prisma.job.create({
+        const job = await prisma_1.default.job.create({
             data: {
                 title,
                 Company: companyName,
@@ -44,7 +50,8 @@ export const createJob = async (req, res, next) => {
         });
     }
 };
-export const getAllJobs = async (req, res, next) => {
+exports.createJob = createJob;
+const getAllJobs = async (req, res, next) => {
     try {
         const { search, jobType, experience, location } = req.query;
         const whereClause = {
@@ -69,7 +76,7 @@ export const getAllJobs = async (req, res, next) => {
                 { description: { contains: search, mode: 'insensitive' } },
             ];
         }
-        const jobs = await prisma.job.findMany({
+        const jobs = await prisma_1.default.job.findMany({
             where: whereClause,
             orderBy: {
                 createdAt: 'desc'
@@ -90,7 +97,8 @@ export const getAllJobs = async (req, res, next) => {
         });
     }
 };
-export const getJobById = async (req, res, next) => {
+exports.getAllJobs = getAllJobs;
+const getJobById = async (req, res, next) => {
     try {
         const { id } = req.params;
         const jobId = Number(id);
@@ -100,7 +108,7 @@ export const getJobById = async (req, res, next) => {
                 message: 'Invalid job Id'
             });
         }
-        const job = await prisma.job.findFirst({
+        const job = await prisma_1.default.job.findFirst({
             where: {
                 id: jobId,
                 isActive: true
@@ -126,7 +134,8 @@ export const getJobById = async (req, res, next) => {
         });
     }
 };
-export const UpdateJob = async (req, res, next) => {
+exports.getJobById = getJobById;
+const UpdateJob = async (req, res, next) => {
     try {
         const { id } = req.params;
         const jobId = Number(id);
@@ -136,7 +145,7 @@ export const UpdateJob = async (req, res, next) => {
                 message: 'Invalid job ID'
             });
         }
-        const existingJob = await prisma.job.findUnique({
+        const existingJob = await prisma_1.default.job.findUnique({
             where: { id: jobId }
         });
         if (!existingJob) {
@@ -146,7 +155,7 @@ export const UpdateJob = async (req, res, next) => {
             });
         }
         const { title, company, Company, location, jobType, experience, exprience, description, skills, salary, applyLink, applyUrl, isActive } = req.body;
-        const updatedJob = await prisma.job.update({
+        const updatedJob = await prisma_1.default.job.update({
             where: { id: jobId },
             data: {
                 title: title ?? existingJob.title,
@@ -175,7 +184,8 @@ export const UpdateJob = async (req, res, next) => {
         });
     }
 };
-export const deleteJob = async (req, res, next) => {
+exports.UpdateJob = UpdateJob;
+const deleteJob = async (req, res, next) => {
     try {
         const { id } = req.params;
         const jobId = Number(id);
@@ -185,7 +195,7 @@ export const deleteJob = async (req, res, next) => {
                 message: 'Invalid job ID'
             });
         }
-        const existingJob = await prisma.job.findUnique({
+        const existingJob = await prisma_1.default.job.findUnique({
             where: { id: jobId }
         });
         if (!existingJob) {
@@ -194,7 +204,7 @@ export const deleteJob = async (req, res, next) => {
                 message: 'Job not found'
             });
         }
-        await prisma.job.delete({
+        await prisma_1.default.job.delete({
             where: { id: jobId }
         });
         return res.status(200).json({
@@ -210,3 +220,4 @@ export const deleteJob = async (req, res, next) => {
         });
     }
 };
+exports.deleteJob = deleteJob;

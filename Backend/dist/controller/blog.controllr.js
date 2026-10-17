@@ -1,5 +1,11 @@
-import prisma from "../db/prisma";
-export const createBlog = async (req, res, next) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteBlog = exports.updateBlog = exports.getBlogById = exports.getAllBlogs = exports.createBlog = void 0;
+const prisma_1 = __importDefault(require("../db/prisma"));
+const createBlog = async (req, res, next) => {
     try {
         const { title, content, excerpt, thumbnail, thumnail, published } = req.body;
         if (!title || !content) {
@@ -10,13 +16,13 @@ export const createBlog = async (req, res, next) => {
         }
         const baseSlug = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
         let slug = baseSlug;
-        const existingBlog = await prisma.blog.findUnique({
+        const existingBlog = await prisma_1.default.blog.findUnique({
             where: { slug }
         });
         if (existingBlog) {
             slug = `${baseSlug}-${Date.now()}`;
         }
-        const blog = await prisma.blog.create({
+        const blog = await prisma_1.default.blog.create({
             data: {
                 title,
                 slug,
@@ -40,7 +46,8 @@ export const createBlog = async (req, res, next) => {
         });
     }
 };
-export const getAllBlogs = async (req, res, next) => {
+exports.createBlog = createBlog;
+const getAllBlogs = async (req, res, next) => {
     try {
         const { search } = req.query;
         const whereClause = {};
@@ -51,7 +58,7 @@ export const getAllBlogs = async (req, res, next) => {
                 { excerpt: { contains: search, mode: 'insensitive' } },
             ];
         }
-        const blogs = await prisma.blog.findMany({
+        const blogs = await prisma_1.default.blog.findMany({
             where: whereClause,
             orderBy: {
                 createAt: "desc"
@@ -72,18 +79,19 @@ export const getAllBlogs = async (req, res, next) => {
         });
     }
 };
-export const getBlogById = async (req, res, next) => {
+exports.getAllBlogs = getAllBlogs;
+const getBlogById = async (req, res, next) => {
     try {
         const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const blogId = Number(idParam);
         let blog = null;
         if (!Number.isNaN(blogId)) {
-            blog = await prisma.blog.findUnique({
+            blog = await prisma_1.default.blog.findUnique({
                 where: { id: blogId }
             });
         }
         if (!blog && idParam) {
-            blog = await prisma.blog.findUnique({
+            blog = await prisma_1.default.blog.findUnique({
                 where: { slug: idParam }
             });
         }
@@ -107,7 +115,8 @@ export const getBlogById = async (req, res, next) => {
         });
     }
 };
-export const updateBlog = async (req, res, next) => {
+exports.getBlogById = getBlogById;
+const updateBlog = async (req, res, next) => {
     try {
         const { id } = req.params;
         const blogId = Number(id);
@@ -117,7 +126,7 @@ export const updateBlog = async (req, res, next) => {
                 message: "Invalid blog id"
             });
         }
-        const existingBlog = await prisma.blog.findUnique({
+        const existingBlog = await prisma_1.default.blog.findUnique({
             where: { id: blogId }
         });
         if (!existingBlog) {
@@ -127,7 +136,7 @@ export const updateBlog = async (req, res, next) => {
             });
         }
         const { title, content, excerpt, thumbnail, thumnail, published } = req.body;
-        const updatedBlog = await prisma.blog.update({
+        const updatedBlog = await prisma_1.default.blog.update({
             where: { id: blogId },
             data: {
                 title: title ?? existingBlog.title,
@@ -151,7 +160,8 @@ export const updateBlog = async (req, res, next) => {
         });
     }
 };
-export const deleteBlog = async (req, res, next) => {
+exports.updateBlog = updateBlog;
+const deleteBlog = async (req, res, next) => {
     try {
         const { id } = req.params;
         const blogId = Number(id);
@@ -161,7 +171,7 @@ export const deleteBlog = async (req, res, next) => {
                 message: "Invalid blog id"
             });
         }
-        const existingBlog = await prisma.blog.findUnique({
+        const existingBlog = await prisma_1.default.blog.findUnique({
             where: { id: blogId }
         });
         if (!existingBlog) {
@@ -170,7 +180,7 @@ export const deleteBlog = async (req, res, next) => {
                 message: "Blog not found"
             });
         }
-        await prisma.blog.delete({
+        await prisma_1.default.blog.delete({
             where: { id: blogId }
         });
         return res.status(200).json({
@@ -186,3 +196,4 @@ export const deleteBlog = async (req, res, next) => {
         });
     }
 };
+exports.deleteBlog = deleteBlog;
