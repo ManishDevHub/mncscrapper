@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -7,24 +7,45 @@ import {
   EyeOff,
   Lock,
   Mail,
+  AlertCircle,
 } from "lucide-react";
+import api from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    console.log({
-      email,
-      password,
-    });
+    try {
+      const res = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
 
- 
+      if (res.data.token && res.data.user) {
+        login(res.data.token, res.data.user);
+        navigate("/jobs");
+      } else {
+        setError(res.data.message || "Login failed");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <main className="min-h-[calc(100vh-72px)] bg-white px-6 py-12 transition-colors duration-300 dark:bg-black lg:px-8">
@@ -108,6 +129,12 @@ const Login = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {error && (
+                <div className="flex items-center gap-2 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
               {/* ================= EMAIL ================= */}
 
               <div>
@@ -184,9 +211,10 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 font-semibold text-white transition hover:bg-blue-500"
+                disabled={loading}
+                className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50 cursor-pointer"
               >
-                Sign in
+                {loading ? "Signing in..." : "Sign in"}
                 <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
               </button>
             </form>

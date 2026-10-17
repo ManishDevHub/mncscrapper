@@ -1,6 +1,5 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { BriefcaseBusiness, Github, Twitter, Linkedin, Heart } from "lucide-react";
+import { BriefcaseBusiness, Globe, Code, MessageSquare, Heart } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
@@ -22,13 +21,13 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex items-center gap-3 pt-2 text-slate-400">
               <a href="#" className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-zinc-900">
-                <Twitter className="w-4 h-4" />
+                <Globe className="w-4 h-4" />
               </a>
               <a href="#" className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-zinc-900">
-                <Linkedin className="w-4 h-4" />
+                <Code className="w-4 h-4" />
               </a>
               <a href="#" className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-zinc-900">
-                <Github className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4" />
               </a>
             </div>
           </div>
