@@ -9,6 +9,17 @@ import productRouter from "./routes/product.route";
 import roundRouter from "./routes/round.route";
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173", 
+  process.env.FRONTEND_URL as string, 
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use(cors());
 app.use(express.json());
@@ -36,4 +47,4 @@ app.use("/company/round", roundRouter);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT} running`);
-});
+});
