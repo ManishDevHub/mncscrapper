@@ -2,12 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.ts",
-    "build": "tsc",
-    "start": "node dist/app.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/app.js",
     "postinstall": "prisma skills sync || exit 0"
   },
   "keywords": [],
