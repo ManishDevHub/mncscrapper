@@ -9,8 +9,20 @@ import productRouter from "./routes/product.route";
 import roundRouter from "./routes/round.route";
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://mncscrapper-fjsd.vercel.app",
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
 
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
 app.get("/", (req: express.Request, res: express.Response) => {
@@ -36,4 +48,4 @@ app.use("/company/round", roundRouter);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT} running`);
-});
+});
